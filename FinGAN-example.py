@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue 7th Nov 2023
-
 @author: vuletic@maths.ox.ac.uk
+
+changed on 2025-08-04
+@author: tfgan
 """
 
 import FinGAN
@@ -17,17 +19,15 @@ pred = 1
 
 
 ###location of the dataset and etfs-stocks list
-dataloc = "/data/"
-etflistloc = "/stocks-etfs-list.csv"
+dataloc = "./data/"
+etflistloc = "./stocks-etfs-list.csv"
 
-###number of epochs of training
-n_epochs = 100
 
 #number of available GPUs
 ngpu = 1
 
 ###Location for saiving results
-loc = "/Fin-GAN/"
+loc = "./Fin-GAN/"
 
 #Models, plots, results folders in the location aboce
 modelsloc = loc+"TrainedModels/"
@@ -44,11 +44,11 @@ hid_g = 8
 
 
 checkpoint_epoch = 20
-batch_size = 100
 diter = 1
 
-n_epochs = 100
-ngrad = 25
+n_epochs = 10
+ngrad = 1
+batch_size = 90
 vl_later = False
 datastart = {'lrd':[],'lrg':[],'epochs':[],'SR_val':[]}
 
@@ -68,7 +68,7 @@ nres = len(lrg_s)
 resultsname = "results.csv"
 plt.rcParams['figure.figsize'] = [15.75, 9.385]
 ##tickers to be used
-tickers = ['AMZN','HD']
+tickers = ['AMZN']
 datastart = {'lrd':[],'lrg':[],'epochs':[],'SR_val':[]}
 #results_df has performance on both validation and test set
 results_df = pd.DataFrame(data=datastart)
@@ -77,15 +77,16 @@ for j in range(len(hid_d_s)):
     for i in range(nres):
         lrg = lrg_s[i]
         lrd = lrd_s[i]
-        #  For LSTM_combos set hid_d and hid_g to 0 and 1
-        # hid_d = 0
-        # hid_g = 1
         for tickern in range(len(tickers)):
             ticker = tickers[tickern]
             print("******************")
             print(ticker)
             print("******************")
-            df_temp, corrs[tickern] = FinGAN.FinGAN_combos(ticker,loc,modelsloc,plotsloc,dataloc, etflistloc,  vl_later, lrg, lrd, n_epochs, ngrad, h, l, pred, ngpu, tanh_coeff, tr, vl, z_dim, hid_d, hid_g, checkpoint_epoch, batch_size = 100, diter = 1, plot = plot)
+            df_temp, corrs[tickern] = FinGAN.TFGAN_combos(ticker, loc, modelsloc, plotsloc, dataloc, etflistloc, vl_later,
+                                                       lrg, lrd, n_epochs, ngrad, h, l, pred, ngpu, tanh_coeff, tr, vl,
+                                                       z_dim, hid_d, hid_g, checkpoint_epoch, batch_size=batch_size,
+                                                       diter=1, plot=plot)
+            # df_temp, corrs[tickern] = FinGAN.FinGAN_combos(ticker,loc,modelsloc,plotsloc,dataloc, etflistloc,  vl_later, lrg, lrd, n_epochs, ngrad, h, l, pred, ngpu, tanh_coeff, tr, vl, z_dim, hid_d, hid_g, checkpoint_epoch, batch_size = batch_size, diter = 1, plot = plot)
             # df_temp, corrs[tickern] = FinGAN.LSTM_combos(ticker,loc,modelsloc,plotsloc,dataloc, etflistloc,  vl_later, lrg, lrd, n_epochs, ngrad, h, l, pred, ngpu, tanh_coeff, tr, vl, z_dim, hid_d, hid_g, checkpoint_epoch, batch_size = 100, diter = 1, plot = plot)
             results_df = pd.concat([results_df,df_temp], ignore_index=True)
             results_df.to_csv(resultsloc+resultsname)
